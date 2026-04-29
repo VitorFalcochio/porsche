@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porsche 911 Carrera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Barlow+Condensed:wght@200;300;400;600;700;800&family=Barlow:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --black: #080808;
+  --off-black: #0f0f0f;
+  --dark: #141414;
+  --dark-warm: #0f0a0a;
+  --gold: #CC1B1B;
+  --gold-light: #E83030;
+  --gold-dim: rgba(204,27,27,0.18);
+  --red: #CC1B1B;
+  --white: #F5F1EB;
+  --white-dim: rgba(245,241,235,0.6);
+  --white-faint: rgba(245,241,235,0.1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ── */
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  transition: width .25s, height .25s, opacity .25s;
+  will-change: transform;
+}
+#cursor-dot {
+  position: fixed;
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  will-change: transform;
+}
+body.cursor-hover #cursor-ring { width: 56px; height: 56px; background: rgba(201,168,76,0.08); }
+
+/* ── LOADER ── */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--black);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2rem;
+}
+.loader-word {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 200;
+  font-size: clamp(1.2rem,3vw,2rem);
+  letter-spacing: 0.5em;
+  color: var(--white);
+  text-transform: uppercase;
+}
+.loader-word span { color: var(--gold); }
+.loader-track {
+  width: 180px;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.loader-fill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 1.75rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .4s, padding .4s, border-color .4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(8,8,8,0.88);
+  backdrop-filter: blur(24px);
+  padding: 1.1rem 4rem;
+  border-color: var(--gold-dim);
+}
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.38em;
+  color: var(--white);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.nav-logo em { color: var(--gold); font-style: normal; }
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  text-decoration: none;
+  transition: color .3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width .3s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+.nav-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--gold);
+  border: none;
+  padding: 0.65rem 1.6rem;
+  cursor: none;
+  transition: background .25s;
+}
+.nav-btn:hover { background: var(--gold-light); }
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  height: 100vh;
+  min-height: 680px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+/*
+ * ═══════════════════════════════════════════
+ *  HERO IMAGE — swap the commented line below
+ *  with:  background-image: url('your-911.jpg');
+ * ═══════════════════════════════════════════
+ */
+.hero-bg {
+  position: absolute;
+  inset: -12%;
+  background-image:
+    linear-gradient(to bottom, rgba(8,8,8,.18) 0%, rgba(8,8,8,0) 28%, rgba(8,8,8,.6) 72%, #080808 100%),
+    url('porsche.jpeg');
+  background-size: cover;
+  background-position: center 50%;
+  will-change: transform;
+}
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 62% 52%, rgba(204,27,27,.12) 0%, transparent 60%);
+}
+/* film grain */
+.hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 4rem 5.5rem;
+  width: 100%;
+}
+.hero-eyebrow {
+  overflow: hidden;
+  margin-bottom: 1.1rem;
+}
+.hero-eyebrow-inner {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--gold);
+  transform: translateY(110%);
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(5rem, 11vw, 11rem);
+  line-height: .9;
+  margin-bottom: 1.6rem;
+}
+.hero-title-line {
+  display: block;
+  overflow: hidden;
+}
+.hero-title-inner {
+  display: block;
+  transform: translateY(110%);
+}
+.hero-title em { font-style: italic; color: var(--gold-light); }
+.hero-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 200;
+  font-size: clamp(.9rem, 1.8vw, 1.1rem);
+  letter-spacing: .14em;
+  color: var(--white-dim);
+  max-width: 460px;
+  margin-bottom: 2.8rem;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.hero-actions {
+  display: flex;
+  gap: 1.1rem;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.btn-gold {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--gold);
+  border: none;
+  padding: .9rem 2.4rem;
+  cursor: none;
+  text-decoration: none;
+  display: inline-block;
+  transition: background .25s, transform .25s;
+}
+.btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+.btn-outline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 0.78rem;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: transparent;
+  border: 1px solid rgba(245,241,235,.28);
+  padding: .9rem 2.4rem;
+  cursor: none;
+  text-decoration: none;
+  display: inline-block;
+  transition: border-color .25s, color .25s, transform .25s;
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2.4rem;
+  right: 4rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .68rem;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+  opacity: 0;
+}
+.scroll-line {
+  width: 38px;
+  height: 1px;
+  background: rgba(201,168,76,.4);
+  position: relative;
+  overflow: hidden;
+}
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: var(--gold);
+  animation: sweep 1.6s ease infinite;
+}
+@keyframes sweep { to { left: 100%; } }
+
+/* ── INTRO ── */
+#intro {
+  padding: 9rem 4rem;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+#intro::before {
+  content: '911';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(14rem, 28vw, 26rem);
+  color: rgba(255,255,255,.018);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+.intro-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: 0.68rem;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.8rem;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.section-label::before,
+.section-label::after {
+  content: '';
+  width: 36px;
+  height: 1px;
+  background: var(--gold);
+}
+.section-label.left { justify-content: flex-start; }
+.section-label.left::before { display: none; }
+
+.intro-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(1.9rem, 3.8vw, 3.2rem);
+  line-height: 1.38;
+  color: var(--white);
+}
+.lw { overflow: hidden; display: block; }
+.li { display: block; transform: translateY(105%); }
+.intro-quote em { font-style: italic; color: var(--gold-light); }
+
+.intro-body {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--white-dim);
+  max-width: 580px;
+  margin: 2.8rem auto 0;
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* ── PERFORMANCE ── */
+#performance {
+  background: var(--dark-warm);
+  padding: 8rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+#performance::before,
+#performance::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+#performance::before { top: 0; }
+#performance::after { bottom: 0; }
+
+.perf-header { margin-bottom: 5.5rem; }
+.perf-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 5.5vw, 5.2rem);
+  line-height: 1.08;
+  color: var(--white);
+  margin-top: .8rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.stat {
+  padding: 3rem 2rem;
+  border-right: 1px solid rgba(255,255,255,.08);
+  position: relative;
+  opacity: 0;
+  transform: translateY(28px);
+}
+.stat:last-child { border-right: none; }
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 2rem;
+  width: 0; height: 2px;
+  background: var(--gold);
+  transition: width .7s ease;
+}
+.stat.lit::before { width: calc(100% - 4rem); }
+
+.stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.2rem, 6vw, 6.5rem);
+  line-height: 1;
+  color: var(--white);
+  display: flex;
+  align-items: flex-start;
+  gap: .15rem;
+  margin-bottom: .5rem;
+}
+.stat-unit {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: clamp(.9rem, 1.8vw, 1.4rem);
+  color: var(--gold);
+  margin-top: .5rem;
+}
+.stat-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .72rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+.stat-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: .82rem;
+  color: rgba(245,241,235,.32);
+  margin-top: .35rem;
+}
+
+/* ── SPLIT SECTIONS ── */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 82vh;
+  overflow: hidden;
+}
+.split.reverse { direction: rtl; }
+.split.reverse > * { direction: ltr; }
+
+.img-pane {
+  position: relative;
+  overflow: hidden;
+  min-height: 480px;
+}
+.img-bg {
+  position: absolute;
+  inset: -8%;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+/*
+ * EXTERIOR IMAGE — replace below with url('exterior.jpg')
+ */
+.ext-img {
+  background-image:
+    linear-gradient(to right, rgba(8,8,8,0) 0%, rgba(8,8,8,.35) 100%),
+    url('porsche de cima.png');
+  background-size: cover;
+  background-position: center center;
+}
+
+/*
+ * INTERIOR IMAGE — replace below with url('interior.jpg')
+ */
+.int-img {
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-pane {
+  background: var(--off-black);
+  display: flex;
+  align-items: center;
+  padding: 6rem 5.5rem;
+}
+.text-pane.darker { background: var(--black); }
+.pane-inner { max-width: 460px; }
+
+.pane-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 3.8vw, 3.6rem);
+  line-height: 1.13;
+  color: var(--white);
+  margin-top: .6rem;
+  margin-bottom: 1.4rem;
+}
+.pane-body {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  font-size: .97rem;
+  line-height: 1.82;
+  color: var(--white-dim);
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.feat-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  opacity: 0;
+  transform: translateY(18px);
+}
+.feat-list li {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .82rem;
+  letter-spacing: .1em;
+  color: var(--white-dim);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+.feat-list li::before {
+  content: '';
+  width: 18px; height: 1px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ── QUOTE BANNER ── */
+#banner {
+  position: relative;
+  height: 55vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.banner-bg {
+  position: absolute;
+  inset: -12%;
+  background: linear-gradient(150deg, #080202, #1a0404, #3d0808, #7a1010, #CC1B1B, #7a1010, #2d0606, #080202);
+  background-size: cover;
+  will-change: transform;
+}
+.banner-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,8,8,.58);
+}
+.banner-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.banner-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  color: var(--white);
+  line-height: 1.32;
+}
+
+/* ── MODELS ── */
+#models {
+  padding: 8rem 4rem;
+  background: var(--black);
+}
+.models-hdr {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+.models-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 5vw, 4.6rem);
+  color: var(--white);
+  margin-top: .6rem;
+  margin-bottom: .8rem;
+}
+.models-title em { font-style: italic; color: var(--gold-light); }
+.models-sub {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  color: var(--white-dim);
+  font-size: .95rem;
+  opacity: 0;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,.07);
+}
+.card {
+  background: var(--dark);
+  padding: 3rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(36px);
+  transition: background .4s;
+  cursor: none;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background .4s;
+}
+.card:hover { background: #191910; }
+.card:hover::before { background: var(--gold); }
+
+.card-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .62rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.8rem;
+}
+.card-num {
+  position: absolute;
+  top: 3rem; right: 2.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: .95rem;
+  color: rgba(255,255,255,.15);
+}
+.card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: .4rem;
+}
+.card-engine {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  font-size: .83rem;
+  color: var(--white-dim);
+  margin-bottom: 2.2rem;
+}
+.card-specs {
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+  margin-bottom: 2.2rem;
+  padding-bottom: 2.2rem;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.spec-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .68rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(245,241,235,.35);
+}
+.spec-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: .83rem;
+  color: var(--white);
+}
+.card-price-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .62rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(245,241,235,.35);
+}
+.card-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--gold);
+  letter-spacing: .02em;
+  margin-bottom: .2rem;
+}
+.card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  margin-top: 1.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: .73rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--white);
+  text-decoration: none;
+  transition: color .3s, gap .3s;
+}
+.card-cta::after { content: '→'; transition: transform .3s; }
+.card:hover .card-cta { color: var(--gold); gap: 1.1rem; }
+.card:hover .card-cta::after { transform: translateX(4px); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--off-black);
+  border-top: 1px solid var(--gold-dim);
+  padding: 4rem;
+}
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.footer-logo-wrap { max-width: 280px; }
+.footer-logo {
+  display: block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: .36em;
+  color: var(--white);
+  margin-bottom: .8rem;
+}
+.footer-logo em { color: var(--gold); font-style: normal; }
+.footer-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--white-dim);
+}
+.footer-cols {
+  display: flex;
+  gap: 4rem;
+}
+.footer-col h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: .68rem;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.1rem;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
+.footer-col ul a {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  font-size: .85rem;
+  color: var(--white-dim);
+  text-decoration: none;
+  transition: color .25s;
+}
+.footer-col ul a:hover { color: var(--white); }
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-copy {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  color: rgba(245,241,235,.25);
+}
+.footer-legal { display: flex; gap: 1.8rem; }
+.footer-legal a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 300;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  color: rgba(245,241,235,.25);
+  text-decoration: none;
+  transition: color .25s;
+}
+.footer-legal a:hover { color: var(--gold); }
+
+/* ── INTERIOR CAR IMAGE ── */
+#intImg {
+  width: 90%;
+  max-width: 480px;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 20px 60px rgba(204,27,27,.25)) drop-shadow(0 4px 20px rgba(0,0,0,.8));
+  transform: rotate(-8deg) translateY(10px);
+  transition: transform .6s ease;
+}
+.img-pane:hover #intImg {
+  transform: rotate(-4deg) translateY(0px);
+}
+
+/* ── GLOBAL NOISE LAYER ── */
+.noise {
+  position: fixed;
+  inset: 0;
+  opacity: .022;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 190px 190px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  nav, nav.scrolled { padding-left: 2rem; padding-right: 2rem; }
+  .nav-links { display: none; }
+  .hero-content { padding: 0 2rem 5rem; }
+  #intro, #performance, #models { padding-left: 2rem; padding-right: 2rem; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .split, #interior-split { grid-template-columns: 1fr; }
+  .split.reverse { direction: ltr; }
+  .img-pane { min-height: 340px; }
+  .text-pane { padding: 4rem 2.5rem; }
+  .cards { grid-template-columns: 1fr; }
+  footer { padding: 3rem 2rem; }
+  .footer-top { flex-direction: column; gap: 2.5rem; }
+  .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .footer-cols { flex-direction: column; gap: 2rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-scroll { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <p class="loader-word">P<span>ORSCHE</span></p>
+  <div class="loader-track"><div class="loader-fill" id="lf"></div></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">P<em>ORSCHE</em></a>
+  <ul class="nav-links">
+    <li><a href="#intro">O Modelo</a></li>
+    <li><a href="#performance">Performance</a></li>
+    <li><a href="#exterior">Design</a></li>
+    <li><a href="#models">Configurações</a></li>
+  </ul>
+  <button class="nav-btn">Configurar</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow"><span class="hero-eyebrow-inner">Porsche &mdash; Desde 1963</span></p>
+    <h1 class="hero-title">
+      <span class="hero-title-line"><span class="hero-title-inner">911</span></span>
+      <span class="hero-title-line"><span class="hero-title-inner"><em>Carrera</em></span></span>
+    </h1>
+    <p class="hero-tag">A lenda que nunca para de evoluir.</p>
+    <div class="hero-actions">
+      <a href="#models" class="btn-gold">Configurar</a>
+      <a href="#intro" class="btn-outline">Saiba Mais</a>
+    </div>
+  </div>
+  <div class="hero-scroll" id="heroScroll">
+    <span class="scroll-line"></span>Rolar
+  </div>
+</section>
+
+<!-- INTRO -->
+<section id="intro">
+  <div class="intro-inner">
+    <p class="section-label" id="introLabel">A Essência</p>
+    <h2 class="intro-quote">
+      <span class="lw"><span class="li">Mais de seis décadas de evolução.</span></span>
+      <span class="lw"><span class="li">Uma arquitetura que <em>definiu</em> a categoria.</span></span>
+      <span class="lw"><span class="li">Um nome que transcende o automóvel.</span></span>
+    </h2>
+    <p class="intro-body">O Porsche 911 Carrera é o resultado de uma obsessão contínua pela perfeição. Cada detalhe é refinado, cada componente otimizado, cada curva calculada — para oferecer uma experiência que vai muito além da simples condução.</p>
+  </div>
+</section>
+
+<!-- PERFORMANCE -->
+<section id="performance">
+  <div class="perf-header">
+    <p class="section-label left" id="perfLabel">Desempenho</p>
+    <h2 class="perf-title">
+      <span class="lw"><span class="li">Números que</span></span>
+      <span class="lw"><span class="li">definem o limite.</span></span>
+    </h2>
+  </div>
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-num"><span class="cnt" data-to="4.2" data-dec="1">0.0</span><span class="stat-unit">s</span></div>
+      <div class="stat-lbl">0 a 100 km/h</div>
+      <div class="stat-sub">Aceleração</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="cnt" data-to="385" data-dec="0">0</span><span class="stat-unit">cv</span></div>
+      <div class="stat-lbl">Potência Máxima</div>
+      <div class="stat-sub">@ 6.500 rpm</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="cnt" data-to="290" data-dec="0">0</span><span class="stat-unit">km/h</span></div>
+      <div class="stat-lbl">Velocidade Máxima</div>
+      <div class="stat-sub">Velocidade de ponta</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num"><span class="cnt" data-to="3.0" data-dec="1">0.0</span><span class="stat-unit">L</span></div>
+      <div class="stat-lbl">Motor Boxer</div>
+      <div class="stat-sub">Biturbo, 6 cilindros</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXTERIOR -->
+<section id="exterior" class="split">
+  <div class="img-pane">
+    <div class="img-bg ext-img" id="extBg"></div>
+    <!-- EXTERIOR: replace ext-img background-image in CSS with url('exterior.jpg') -->
+  </div>
+  <div class="text-pane">
+    <div class="pane-inner">
+      <p class="section-label left" id="extLabel">Design Exterior</p>
+      <h2 class="pane-title">
+        <span class="lw"><span class="li">Forma que</span></span>
+        <span class="lw"><span class="li">segue a função.</span></span>
+      </h2>
+      <p class="pane-body" id="extBody">A silhueta do 911 é instantaneamente reconhecível em qualquer estrada do mundo. Cada linha, cada abertura de ar e cada superfície existe por uma razão: aerodinâmica, refrigeração ou identidade — frequentemente os três ao mesmo tempo.</p>
+      <ul class="feat-list" id="extList">
+        <li>Carroceria em aço de alta resistência</li>
+        <li>Spoiler traseiro ativo adaptativo</li>
+        <li>Rodas de 20&Prime;/21&Prime; em liga leve</li>
+        <li>Ópticas LED Matrix de alta performance</li>
+        <li>Disponível em 14 cores exclusivas</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- INTERIOR -->
+<section id="interior-split" class="split reverse">
+  <div class="img-pane">
+    <img src="porsche perfil.png" alt="Porsche 911 Carrera — vista superior" id="intImg">
+  </div>
+  <div class="text-pane darker">
+    <div class="pane-inner">
+      <p class="section-label left" id="intLabel">Interior</p>
+      <h2 class="pane-title">
+        <span class="lw"><span class="li">Cockpit criado</span></span>
+        <span class="lw"><span class="li">para o piloto.</span></span>
+      </h2>
+      <p class="pane-body" id="intBody">O interior do 911 Carrera é concebido em torno de quem dirige. O Porsche Communication Management (PCM) integra navegação, entretenimento e configurações de condução em uma interface fluida e intuitiva.</p>
+      <ul class="feat-list" id="intList">
+        <li>Tela PCM touch de 10,9 polegadas</li>
+        <li>Bancos sport em couro natural</li>
+        <li>Sistema BOSE Surround Sound</li>
+        <li>Volante GT com controles integrados</li>
+        <li>Climatizador automático de 3 zonas</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BANNER -->
+<section id="banner">
+  <div class="banner-bg" id="bannerBg"></div>
+  <div class="banner-veil"></div>
+  <div class="banner-inner">
+    <p class="banner-quote">
+      <span class="lw"><span class="li">&ldquo;Não existe substituto.</span></span>
+      <span class="lw"><span class="li">Nunca existiu.&rdquo;</span></span>
+    </p>
+  </div>
+</section>
+
+<!-- MODELS -->
+<section id="models">
+  <div class="models-hdr">
+    <p class="section-label" id="modelsLabel">Família 911</p>
+    <h2 class="models-title">
+      <span class="lw"><span class="li">Escolha o seu</span></span>
+      <span class="lw"><span class="li"><em>nível de intensidade.</em></span></span>
+    </h2>
+    <p class="models-sub" id="modelsSub">Três configurações. Uma herança.</p>
+  </div>
+  <div class="cards">
+    <!-- Carrera -->
+    <div class="card">
+      <div class="card-badge">Série Carrera</div>
+      <div class="card-num">01</div>
+      <div class="card-name">911 Carrera</div>
+      <div class="card-engine">Boxer 3.0 biturbo &middot; Traseira</div>
+      <div class="card-specs">
+        <div class="spec-row"><span class="spec-lbl">Potência</span><span class="spec-val">385 cv</span></div>
+        <div class="spec-row"><span class="spec-lbl">0–100 km/h</span><span class="spec-val">4,2 s</span></div>
+        <div class="spec-row"><span class="spec-lbl">Vel. Máxima</span><span class="spec-val">290 km/h</span></div>
+        <div class="spec-row"><span class="spec-lbl">Transmissão</span><span class="spec-val">PDK 8v</span></div>
+      </div>
+      <div class="card-price-lbl">A partir de</div>
+      <div class="card-price">R$&nbsp;799.000</div>
+      <a href="#" class="card-cta">Configurar modelo</a>
+    </div>
+    <!-- Carrera S -->
+    <div class="card">
+      <div class="card-badge">Série Carrera &middot; Destaque</div>
+      <div class="card-num">02</div>
+      <div class="card-name">911 Carrera S</div>
+      <div class="card-engine">Boxer 3.0 biturbo &middot; Traseira</div>
+      <div class="card-specs">
+        <div class="spec-row"><span class="spec-lbl">Potência</span><span class="spec-val">450 cv</span></div>
+        <div class="spec-row"><span class="spec-lbl">0–100 km/h</span><span class="spec-val">3,7 s</span></div>
+        <div class="spec-row"><span class="spec-lbl">Vel. Máxima</span><span class="spec-val">308 km/h</span></div>
+        <div class="spec-row"><span class="spec-lbl">Transmissão</span><span class="spec-val">PDK 8v</span></div>
+      </div>
+      <div class="card-price-lbl">A partir de</div>
+      <div class="card-price">R$&nbsp;929.000</div>
+      <a href="#" class="card-cta">Configurar modelo</a>
+    </div>
+    <!-- Carrera 4S -->
+    <div class="card">
+      <div class="card-badge">Série Carrera &middot; AWD</div>
+      <div class="card-num">03</div>
+      <div class="card-name">911 Carrera 4S</div>
+      <div class="card-engine">Boxer 3.0 biturbo &middot; Integral</div>
+      <div class="card-specs">
+        <div class="spec-row"><span class="spec-lbl">Potência</span><span class="spec-val">450 cv</span></div>
+        <div class="spec-row"><span class="spec-lbl">0–100 km/h</span><span class="spec-val">3,6 s</span></div>
+        <div class="spec-row"><span class="spec-lbl">Vel. Máxima</span><span class="spec-val">304 km/h</span></div>
+        <div class="spec-row"><span class="spec-lbl">Tração</span><span class="spec-val">Integral PTM</span></div>
+      </div>
+      <div class="card-price-lbl">A partir de</div>
+      <div class="card-price">R$&nbsp;1.049.000</div>
+      <a href="#" class="card-cta">Configurar modelo</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-logo-wrap">
+      <span class="footer-logo">P<em>ORSCHE</em></span>
+      <p class="footer-tagline">There is no substitute.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Modelos</h4>
+        <ul>
+          <li><a href="#">911 Carrera</a></li>
+          <li><a href="#">911 Carrera S</a></li>
+          <li><a href="#">911 Carrera 4S</a></li>
+          <li><a href="#">911 Turbo S</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Experiência</h4>
+        <ul>
+          <li><a href="#">Test Drive</a></li>
+          <li><a href="#">Porsche Exclusive</a></li>
+          <li><a href="#">Porsche Finance</a></li>
+          <li><a href="#">Porsche Approved</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contato</h4>
+        <ul>
+          <li><a href="#">Concessionárias</a></li>
+          <li><a href="#">Atendimento</a></li>
+          <li><a href="#">Porsche Brasil</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">&copy; 2025 Porsche AG. Site conceitual criado para fins demonstrativos.</p>
+    <div class="footer-legal">
+      <a href="#">Privacidade</a>
+      <a href="#">Cookies</a>
+      <a href="#">Termos</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── CURSOR ──────────────────────────────────────
+const ring = document.getElementById('cursor-ring');
+const dot  = document.getElementById('cursor-dot');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  gsap.to(dot, { x: mx, y: my, duration: 0.08, ease: 'none' });
+});
+(function tick() {
+  rx += (mx - rx) * 0.13;
+  ry += (my - ry) * 0.13;
+  gsap.set(ring, { x: rx, y: ry });
+  requestAnimationFrame(tick);
+})();
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+// ── LOADER ──────────────────────────────────────
+gsap.to('#lf', { width: '100%', duration: 1.4, ease: 'power2.inOut' });
+
+const heroTL = gsap.timeline({ paused: true });
+heroTL
+  .to('#loader', { opacity: 0, duration: 0.7, ease: 'power2.inOut',
+      onComplete: () => { document.getElementById('loader').style.display = 'none'; } })
+  .to('.hero-eyebrow-inner', { y: 0, duration: 1, ease: 'power3.out' }, '-=0.1')
+  .to('.hero-title-inner',   { y: 0, duration: 1.3, stagger: 0.14, ease: 'power3.out' }, '-=0.7')
+  .to('.hero-tag',           { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, '-=0.6')
+  .to('.hero-actions',       { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.5')
+  .to('#heroScroll',         { opacity: 1, duration: 0.6 }, '-=0.3');
+
+window.addEventListener('load', () => setTimeout(() => heroTL.play(), 200));
+
+// ── NAV ─────────────────────────────────────────
+const nav = document.getElementById('nav');
+ScrollTrigger.create({
+  start: 'top -60',
+  onUpdate: s => nav.classList.toggle('scrolled', s.progress > 0)
+});
+
+// ── HERO PARALLAX ────────────────────────────────
+gsap.to('#heroBg', {
+  yPercent: 28, ease: 'none',
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+
+// ── HELPER: fade-up ──────────────────────────────
+function fadeUp(target, trigger, options = {}) {
+  gsap.to(target, {
+    opacity: 1, y: 0, duration: options.duration || 0.8, ease: 'power2.out',
+    delay: options.delay || 0,
+    scrollTrigger: { trigger: trigger || target, start: options.start || 'top 82%' }
+  });
+}
+function linesIn(targets, trigger, start) {
+  gsap.to(targets, {
+    y: 0, duration: 1, stagger: 0.13, ease: 'power3.out',
+    scrollTrigger: { trigger, start: start || 'top 80%' }
+  });
+}
+
+// ── INTRO ────────────────────────────────────────
+fadeUp('#introLabel', '#intro');
+linesIn('#intro .li', '#intro .intro-quote');
+fadeUp('.intro-body', '.intro-body', { start: 'top 85%' });
+
+// ── PERFORMANCE ──────────────────────────────────
+fadeUp('#perfLabel', '#performance');
+linesIn('#performance .li', '#performance .perf-title');
+
+let counted = false;
+gsap.to('.stat', {
+  opacity: 1, y: 0, duration: 0.8, stagger: 0.14, ease: 'power2.out',
+  scrollTrigger: {
+    trigger: '.stats-grid', start: 'top 82%',
+    onEnter: () => {
+      document.querySelectorAll('.stat').forEach(s => s.classList.add('lit'));
+      if (counted) return;
+      counted = true;
+      document.querySelectorAll('.cnt').forEach(el => {
+        const target = parseFloat(el.dataset.to);
+        const dec    = parseInt(el.dataset.dec);
+        const t0 = performance.now();
+        (function step(ts) {
+          const p = Math.min((ts - t0) / 2000, 1);
+          const v = (1 - Math.pow(1 - p, 3)) * target;
+          el.textContent = v.toFixed(dec);
+          if (p < 1) requestAnimationFrame(step);
+        })(performance.now());
+      });
+    }
+  }
+});
+
+// ── EXTERIOR ─────────────────────────────────────
+gsap.to('#extBg', {
+  yPercent: 14, ease: 'none',
+  scrollTrigger: { trigger: '#exterior', start: 'top bottom', end: 'bottom top', scrub: true }
+});
+fadeUp('#extLabel', '#exterior');
+linesIn('#exterior .li', '#exterior .pane-title');
+fadeUp('#extBody', '#exterior', { start: 'top 72%' });
+fadeUp('#extList', '#exterior', { start: 'top 68%' });
+
+// ── INTERIOR ─────────────────────────────────────
+gsap.from('#intImg', {
+  opacity: 0, rotate: -18, y: 40, duration: 1.2, ease: 'power3.out',
+  scrollTrigger: { trigger: '#interior-split', start: 'top 75%' }
+});
+fadeUp('#intLabel', '#interior-split');
+linesIn('#interior-split .li', '#interior-split .pane-title');
+fadeUp('#intBody', '#interior-split', { start: 'top 72%' });
+fadeUp('#intList', '#interior-split', { start: 'top 68%' });
+
+// ── BANNER ───────────────────────────────────────
+gsap.to('#bannerBg', {
+  yPercent: 22, ease: 'none',
+  scrollTrigger: { trigger: '#banner', start: 'top bottom', end: 'bottom top', scrub: true }
+});
+linesIn('#banner .li', '#banner', 'top 72%');
+
+// ── MODELS ───────────────────────────────────────
+fadeUp('#modelsLabel', '#models');
+linesIn('#models .li', '#models .models-title');
+fadeUp('#modelsSub', '#modelsSub', { start: 'top 85%' });
+gsap.to('.card', {
+  opacity: 1, y: 0, duration: 0.8, stagger: 0.16, ease: 'power2.out',
+  scrollTrigger: { trigger: '.cards', start: 'top 82%' }
+});
+</script>
+</body>
+</html>
