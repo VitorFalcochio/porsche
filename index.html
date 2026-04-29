@@ -118,15 +118,15 @@ nav.scrolled {
   border-color: var(--gold-dim);
 }
 .nav-logo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 600;
-  font-size: 1rem;
-  letter-spacing: 0.38em;
-  color: var(--white);
   text-decoration: none;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
 }
-.nav-logo em { color: var(--gold); font-style: normal; }
+.nav-logo-img {
+  height: 90px;
+  width: auto;
+  filter: brightness(0) invert(1);
+}
 .nav-links {
   display: flex;
   gap: 2.5rem;
@@ -912,7 +912,7 @@ footer {
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">P<em>ORSCHE</em></a>
+  <a href="#" class="nav-logo"><img src="logo porsche.png" alt="Porsche" class="nav-logo-img"></a>
   <ul class="nav-links">
     <li><a href="#intro">O Modelo</a></li>
     <li><a href="#performance">Performance</a></li>
@@ -924,9 +924,8 @@ footer {
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-bg" id="heroBg"></div> 
   <div class="hero-content">
-    <p class="hero-eyebrow"><span class="hero-eyebrow-inner">Porsche &mdash; Desde 1963</span></p>
     <h1 class="hero-title">
       <span class="hero-title-line"><span class="hero-title-inner">911</span></span>
       <span class="hero-title-line"><span class="hero-title-inner"><em>Carrera</em></span></span>
@@ -1015,7 +1014,7 @@ footer {
 
 <!-- INTERIOR -->
 <section id="interior-split" class="split reverse">
-  <div class="img-pane">
+  <div class="img-pane int-img">
     <img src="porsche perfil.png" alt="Porsche 911 Carrera — vista superior" id="intImg">
   </div>
   <div class="text-pane darker">
